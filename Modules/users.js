@@ -4,6 +4,8 @@ var DButilsAzure = require('../DButils');
 
 module.exports = router;
 
+
+//retrievePassword dsad
 router.post('/retrievePassword', function(req,res) {
     var un = req.body.Username;
     var q1 = req.body.Q1;
@@ -22,6 +24,7 @@ router.post('/retrievePassword', function(req,res) {
     })
 });
 
+//addUser
 router.post('/', function(req,res) {
     DButilsAzure.execQuery("Select * from Users where Username='"+req.body.Username+"'").then(function(response){
         if(response.length!=0)
