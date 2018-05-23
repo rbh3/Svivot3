@@ -1,6 +1,18 @@
 var express = require('express');
 var router = express.Router();
+var bodyParser = require('body-parser');
 var DButilsAzure = require('../DButils');
+var morgan = require('morgan');
+var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
+// use body parser so we can get info from POST and/or URL parameters
+router.use(bodyParser.urlencoded({ extended: false }));
+router.use(bodyParser.json());
+
+// use morgan to log requests to the console
+router.use(morgan('dev'));
+
+var  superSecret = "dorRavid12"; // secret variable
+
 
 module.exports = router;
 
@@ -57,6 +69,69 @@ router.post('/', function(req,res) {
 
 //LOGIN
 
+
+
+
+
+
+
+router.post('/authenticate', function (req, res) {
+
+    if (!req.body.userName || !req.body.password)
+        res.send({ message: "bad values" })
+
+    else {
+        DButilsAzure.execQuery("select * from Users where Username='" + req.body.userName + "'").then(function(response){
+            if (response.length==0)  
+                res.send({ success: false, message: 'Authentication failed. No such user name' }) 
+            else
+            {
+                if (req.body.password == response[0].Password)
+                     sendToken(response, res)
+                else 
+                {
+                    res.send({ success: false, message: 'Authentication failed. Wrong Password' })
+                    return
+                }
+            }     
+        }).catch(function(err){
+            res.send(err);
+        })  
+    }
+
+})
+
+function sendToken(user, res) {
+    let categories=[];
+    DButilsAzure.execQuery("select * from CategoryUser where Username='" + user[0].Username + "'").then(function(response){
+        for(var i=0; i<response.length;i++)
+        {
+            categories[i]=response[i].CatID;
+        }
+
+          
+    var payload = {
+        userName: user[0].Username,
+        categories: categories
+    }
+
+    var token = jwt.sign(payload, superSecret, {
+        expiresIn: "1d" // expires in 24 hours
+    });
+
+    // return the information including token as JSON
+    res.json({
+        success: true,
+        message: 'This is your token!',
+        token: token
+    });
+
+    return;
+
+    }).catch(function(err){
+        res.send(err);
+    });  
+}
 
 
 

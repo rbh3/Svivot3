@@ -13,16 +13,44 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/users', users);
 app.use('/POI', POI);
+// use morgan to log requests to the console
+app.use(morgan('dev'));
 
+var  superSecret = "dorRavid12"; // secret variable
 
-app.post('/', function(req,res) {
-    var un = req.body.Username;
-    DButilsAzure.execQuery("select * from Users where Username='" + un + "'").then(function(response){
-        res.send(response)
-    }).catch(function(err){
-        res.send(err);
-    })
-});
+app.use('/reg', function (req, res, next) {
+
+    // check header or url parameters or post parameters for token
+    var token = req.body.token || req.query.token || req.headers['x-access-token'];
+
+    // decode token
+    if (token) {
+
+        // verifies secret and checks exp
+        jwt.verify(token, superSecret, function (err, decoded) {
+            if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token.' });
+            } else {
+                // if everything is good, save to request for use in other routes
+                // get the decoded payload and header
+                var decoded = jwt.decode(token, {complete: true});
+                req.decoded= decoded;
+                console.log(decoded.header);
+                console.log(decoded.payload)
+                next(decoded.payload);
+            }
+        });
+
+    } else {
+
+        // if there is no token
+        // return an error
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
+    }
+})
 
 var port = 3000;
 app.listen(port, function () {
