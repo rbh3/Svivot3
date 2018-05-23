@@ -5,7 +5,7 @@ var DButilsAzure = require('../DButils');
 module.exports = router;
 
 
-//retrievePassword dsad
+//retrievePassword
 router.post('/retrievePassword', function(req,res) {
     var un = req.body.Username;
     var q1 = req.body.Q1;
