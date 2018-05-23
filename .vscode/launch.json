@@ -7,6 +7,26 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/server.js"
+<<<<<<< HEAD
+=======
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/server.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch via NPM",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run-script",
+                "debug"
+            ],
+            "port": 9229
+>>>>>>> 7c2c50b89b01bff393fe8aee9e7634dcb9980172
         }
     ],
     "compounds": []
