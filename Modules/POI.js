@@ -77,13 +77,18 @@ router.get('/getPOIbyID/:id', function (req, res) {
 });
 
 router.get('/Random3', function (req, res) {
-    DButilsAzure.execQuery("select ID from POI").then(function (response) {
-        getPOIbyID(req.params.id).then(function (response) {
-            DButilsAzure.execQuery("update POI set UserWaching=" + (response.UsersWatching + 1) + " where ID=" + req.params.id).then(function (response) {
-            }).catch(function (err) { })
-            res.json(response);
-        })
-    });
+    DButilsAzure.execQuery("select ID from POI").then(function (responseID) {
+        let retArr = [];
+        let remain = 3;
+        for (let i=0; i<3; i++) {
+            let tmpID = Math.floor(Math.random() * (responseID.length));
+            getPOIbyID(responseID[tmpID].ID).then(function (responsePOI) {
+                    retArr[i] = responsePOI;
+                if (i === 2)
+                    res.json(retArr);
+            }).catch(function (err) { })            
+        }
+    })
 });
 
 router.get('/reg/FavoritesByUsername/:num', function (req, res, next) {
