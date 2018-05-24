@@ -62,6 +62,8 @@ function getPOIbyID(id) {
                     "Picture": poi.Picture,
                     "Reviews": lastTwo
                 }
+                if (!returnPOI)
+                    console.log("z");
                 resolve(returnPOI);
             }).catch(function (err) { })
         }).catch(function (err) { })
