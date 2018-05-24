@@ -81,7 +81,18 @@ router.get('/Random3', function (req, res) {
         let retArr = [];
         let usedrans=[];
         let count=0;
-        var promise1=new Promise(function(resolve,reject) {
+        let promiseArr=[];
+        for (let i = 0; i <3 ; i++) {
+            promiseArr[i]=new Promise(function(resolve,reject){
+            let tmpID = Math.floor(Math.random() * (responseID.length));
+            while(usedrans.includes(tmpID))
+                tmpID = Math.floor(Math.random() * (responseID.length));
+            usedrans[count]=tmpID;
+            count++
+            resolve(getPOIbyID(responseID[tmpID].ID))
+            })
+        }
+  /*      var promise1=new Promise(function(resolve,reject) {
             let tmpID = Math.floor(Math.random() * (responseID.length));
             while(usedrans.includes(tmpID))
                 tmpID = Math.floor(Math.random() * (responseID.length));
@@ -104,8 +115,8 @@ router.get('/Random3', function (req, res) {
             usedrans[count]=tmpID;
             count++
             resolve(getPOIbyID(responseID[tmpID].ID))
-        })
-        Promise.all([promise1,promise2,promise3]).then(function(values){
+        })*/
+        Promise.all(promiseArr).then(function(values){
             res.send(values);
         })
     })
@@ -126,22 +137,31 @@ router.get('/reg/FavoritesByUsername/:num', function (req, res, next) {
     DButilsAzure.execQuery("select POIid from FavoritePoi where Username='" + un + "' order by Date desc").then(function (response) {
         let retArr = [];
         if (req.params.num === '2') {
+            let promiseArr=[];
             for (let i = 0; (i < 2 && i < response.length); i++) {
-                getPOIbyID(response[i].POIid).then(function (resPOI) {
-                    retArr[i] = resPOI;
-                    if (i === 1)
-                        res.json(retArr);
+                promiseArr[i]=new Promise(function(resolve,reject){
+                    resolve(getPOIbyID(response[i].POIid))
                 })
             }
+            Promise.all(promiseArr).then(function(values){
+                res.send(values);
+            })
         }
         else {
+            let promiseArr=[];
             for (let i = 0; (i < response.length); i++) {
-                getPOIbyID(response[i].POIid).then(function (resPOI) {
+                promiseArr[i]=new Promise(function(resolve,reject){
+                    resolve(getPOIbyID(response[i].POIid))
+                })
+              /*  getPOIbyID(response[i].POIid).then(function (resPOI) {
                     retArr[i] = resPOI;
                     if (i === response.length - 1)
                         res.json(retArr);
-                })
+                })*/
             }
+            Promise.all(promiseArr).then(function(values){
+                res.send(values);
+            })
         }
     });
 });
