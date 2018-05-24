@@ -47,8 +47,8 @@ router.use('/reg', function (req, res, next) {
 //POIs
 
 
-router.get('/reg/FavoritesByUsername/:un', function(req,res,next) {
-    var un = req.params.un;
+router.get('/reg/FavoritesByUsername/', function(req,res,next) {
+    var un = req.decoded.payload.userName;
     DButilsAzure.execQuery("select POIid from FavoritePoi where Username='" + un + "' order by Date desc").then(function(response){
     res.send(response);
     //res.send("Not Found")
