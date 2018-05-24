@@ -16,6 +16,24 @@ app.use(bodyParser.json());
 app.use('/users', users);
 app.use('/POI', POI);
 
+function getPOIbyID(id) {
+    DButilsAzure.execQuery("select * from POI where ID='" + id + "'").then(function(response){
+        res.send(response);
+    }).catch(function(err){
+        res.send(err);
+    })
+}
+
+app.get('/getPOIbyID/:id', function(req, res) {
+    DButilsAzure.execQuery("select * from POI where ID='" + req.params.id + "'").then(function(response){
+        //res.json(response[0].ID);
+        
+    }).catch(function(err){
+        res.send(err);
+    })
+});
+
+    
 
 
 

@@ -46,13 +46,58 @@ router.use('/reg', function (req, res, next) {
 
 //POIs
 
+function getPOIbyID(id) {
+    DButilsAzure.execQuery("select * from POI where ID='" + id + "'").then(function(response){
+        res.send(response);
+    }).catch(function(err){
+        res.send(err);
+    })
+}
+
 
 router.get('/reg/FavoritesByUsername/', function(req,res,next) {
     var un = req.decoded.payload.userName;
     DButilsAzure.execQuery("select POIid from FavoritePoi where Username='" + un + "' order by Date desc").then(function(response){
-    res.send(response);
+    //res.send(response);
+    //get the POI and the last 2 reviews
+
+
+
+
     //res.send("Not Found")
     }).catch(function(err){
         res.send(err);
     })
 });
+
+//getPOI
+
+//storeFavorites
+
+//addRank
+router.post('/reg/addRank/', function(req,res,next) {
+    var id=req.body.id
+	var rank = req.body.rank
+	var body=req.body.body
+	var today=new Date()
+	var sum=0;
+    DButilsAzure.execQuery("insert into ReviewsPoi (POIid,Rank,body,Date) values "+id+","+rank+",'"+body+"',"+today).then(function(response){
+    console.log("Review Added")
+    })
+	DButilsAzure.execQuery("select Rank from ReviewsPoi where POIid="+id).then(function(response){
+		for(var i=0;i<response.length;i++)
+		{
+			sum+=response[i].Rank;
+		}
+		sum=(sum/response.length*5)*100;
+		
+		DButilsAzure.execQuery("Update POI set Rank="+sum+" where POIid="+id).then(function(response)
+		{
+			console.log("Review Calculated")
+			res.send("Review Added")
+		})
+    }).catch(function(err){
+        res.send(err);
+    })
+});
+
