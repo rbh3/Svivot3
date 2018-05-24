@@ -48,7 +48,7 @@ function getPOIbyID(id) {
     return new Promise(function (resolve, reject) {
         DButilsAzure.execQuery("select * from POI where ID='" + id + "'").then(function (responsePOI) {
             let poi = responsePOI[0];
-            DButilsAzure.execQuery("select Rank, body, Date from ReviewsPoi where POIid=" + id + " order by Date desc").then(function (responseREV) {
+            return DButilsAzure.execQuery("select Rank, body, Date from ReviewsPoi where POIid=" + id + " order by Date desc").then(function (responseREV) {
                 let rev = responseREV;
                 let lastTwo = [];
                 for (let i = 0; (i < responseREV.length && i < 2); i++) {
@@ -62,11 +62,9 @@ function getPOIbyID(id) {
                     "Picture": poi.Picture,
                     "Reviews": lastTwo
                 }
-                if (!returnPOI)
-                    console.log("z");
                 resolve(returnPOI);
-            }).catch(function (err) { })
-        }).catch(function (err) { })
+            }).catch(function (err) {console.log (err) })
+        }).catch(function (err) { console.log (err)})
     });
 }
 
@@ -81,17 +79,47 @@ router.get('/getPOIbyID/:id', function (req, res) {
 router.get('/Random3', function (req, res) {
     DButilsAzure.execQuery("select ID from POI").then(function (responseID) {
         let retArr = [];
-        let remain = 3;
-        for (let i=0; i<3; i++) {
+        let usedrans=[];
+        let count=0;
+        var promise1=new Promise(function(resolve,reject) {
+            let tmpID = Math.floor(Math.random() * (responseID.length));
+            while(usedrans.includes(tmpID))
+                tmpID = Math.floor(Math.random() * (responseID.length));
+            usedrans[count]=tmpID;
+            count++
+            resolve(getPOIbyID(responseID[tmpID].ID))
+        })
+        var promise2=new Promise(function(resolve,reject) {
+            let tmpID = Math.floor(Math.random() * (responseID.length));
+            while(usedrans.includes(tmpID))
+                tmpID = Math.floor(Math.random() * (responseID.length));
+            usedrans[count]=tmpID;
+            count++
+            resolve(getPOIbyID(responseID[tmpID].ID))
+        })
+        var promise3=new Promise(function(resolve,reject) {
+            let tmpID = Math.floor(Math.random() * (responseID.length));
+            while(usedrans.includes(tmpID))
+                tmpID = Math.floor(Math.random() * (responseID.length));
+            usedrans[count]=tmpID;
+            count++
+            resolve(getPOIbyID(responseID[tmpID].ID))
+        })
+        Promise.all([promise1,promise2,promise3]).then(function(values){
+            res.send(values);
+        })
+    })
+      /*  for (let i=0; i<3; i++) {
             let tmpID = Math.floor(Math.random() * (responseID.length));
             getPOIbyID(responseID[tmpID].ID).then(function (responsePOI) {
                     retArr[i] = responsePOI;
                 if (i === 2)
                     res.json(retArr);
-            }).catch(function (err) { })            
+            }).catch(function (err) { console.log (err)})            
         }
-    })
-});
+    })*/
+})
+
 
 router.get('/reg/FavoritesByUsername/:num', function (req, res, next) {
     let un = req.decoded.payload.userName;
@@ -159,4 +187,4 @@ router.post('/reg/addRank/', function (req, res, next) {
     }).catch(function (err) {
         res.send(err);
     })
-});
+})
