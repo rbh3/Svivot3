@@ -4,6 +4,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var cors = require('cors');
+var morgan = require('morgan');
+var jwt = require('jsonwebtoken');
 app.use(cors());
 var DButilsAzure = require('./DButils');
 var users = require('./Modules/users');
@@ -12,14 +14,14 @@ var POI = require('./Modules/POI');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/users', users);
-app.use('/POI', POI);
+app.use('/reg/POI', POI);
 // use morgan to log requests to the console
 app.use(morgan('dev'));
 
 var  superSecret = "dorRavid12"; // secret variable
 
 app.use('/reg', function (req, res, next) {
-
+    console.log("INSIDEEEEEE000")
     // check header or url parameters or post parameters for token
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
@@ -37,7 +39,7 @@ app.use('/reg', function (req, res, next) {
                 req.decoded= decoded;
                 console.log(decoded.header);
                 console.log(decoded.payload)
-                next(decoded.payload);
+                next();
             }
         });
 
