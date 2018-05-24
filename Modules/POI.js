@@ -7,7 +7,7 @@ module.exports = router;
 // use morgan to log requests to the console
 router.use(morgan('dev'));
 
-var  superSecret = "dorRavid12"; // secret variable
+var superSecret = "dorRavid12"; // secret variable
 
 
 //Check Token
@@ -25,8 +25,8 @@ router.use('/reg', function (req, res, next) {
             } else {
                 // if everything is good, save to request for use in other routes
                 // get the decoded payload and header
-                var decoded = jwt.decode(token, {complete: true});
-                req.decoded= decoded;
+                var decoded = jwt.decode(token, { complete: true });
+                req.decoded = decoded;
                 console.log(decoded.header);
                 console.log(decoded.payload)
                 next();
@@ -44,141 +44,112 @@ router.use('/reg', function (req, res, next) {
     }
 })
 
-/*
-
 function getPOIbyID(id) {
     return new Promise(function (resolve, reject) {
-        DButilsAzure.execQuery("select * from POI where ID='" + id + "'").then(function(response){
-            resolve(response[0]);
-        }).catch(function(err){})
-    })    
-}
-
-function getPOI_picByID(id) {
-    return new Promise(function (resolve, reject) {
-        DButilsAzure.execQuery("select link from POI_pic where POIid='" + id + "'").then(function(response){
-            resolve(response);
-        }).catch(function(err){})
-    })    
-}
-
-function getLast2ReviewsByPoiID(id) {
-    return new Promise(function (resolve, reject) {
-        DButilsAzure.execQuery("select Rank, body, Date from ReviewsPoi where POIid=" + id + " order by Date desc").then(function(response){
-            let lastTwo = [];
-            for (let i=0; (i<response.length && i<2); i++)
-            {
-                lastTwo[i]=response[i];
-                resolve(lastTwo);
-            }
-        }).catch(function(err){})
-    })
-}
-
-*/
-
-function getPOIbyID(id) {
-    return new Promise(function (resolve, reject) {
-        DButilsAzure.execQuery("select * from POI where ID='" + id + "'").then(function(responsePOI){
+        DButilsAzure.execQuery("select * from POI where ID='" + id + "'").then(function (responsePOI) {
             let poi = responsePOI[0];
-            DButilsAzure.execQuery("select Rank, body, Date from ReviewsPoi where POIid=" + id + " order by Date desc").then(function(responseREV){
+            DButilsAzure.execQuery("select Rank, body, Date from ReviewsPoi where POIid=" + id + " order by Date desc").then(function (responseREV) {
                 let rev = responseREV;
                 let lastTwo = [];
-                for (let i=0; (i<responseREV.length && i<2); i++)
-                {
-                    lastTwo[i]=responseREV[i];
+                for (let i = 0; (i < responseREV.length && i < 2); i++) {
+                    lastTwo[i] = responseREV[i];
                 }
                 let returnPOI = {
-                    "Name":poi.Name,
-                    "Description":poi.Description,
-                    "Rank":poi.Rank,
-                    "UsersWatching":poi.UserWaching,
-                    "Picture":poi.Picture,
+                    "Name": poi.Name,
+                    "Description": poi.Description,
+                    "Rank": poi.Rank,
+                    "UsersWatching": poi.UserWaching,
+                    "Picture": poi.Picture,
                     "Reviews": lastTwo
                 }
                 resolve(returnPOI);
-            }).catch(function(err){})
-        }).catch(function(err){})
+            }).catch(function (err) { })
+        }).catch(function (err) { })
     });
 }
 
-router.get('/getPOIbyID/:id', function(req, res) {
-    getPOIbyID(req.params.id).then(function(response) {
-        DButilsAzure.execQuery("update POI set UserWaching=" + (response.UsersWatching+1) +" where ID=" + req.params.id).then(function(response){
-        }).catch(function(err){})
+router.get('/getPOIbyID/:id', function (req, res) {
+    getPOIbyID(req.params.id).then(function (response) {
+        DButilsAzure.execQuery("update POI set UserWaching=" + (response.UsersWatching + 1) + " where ID=" + req.params.id).then(function (response) {
+        }).catch(function (err) { })
         res.json(response);
     })
 });
 
+router.get('/Random3', function (req, res) {
+    DButilsAzure.execQuery("select ID from POI").then(function (response) {
+        getPOIbyID(req.params.id).then(function (response) {
+            DButilsAzure.execQuery("update POI set UserWaching=" + (response.UsersWatching + 1) + " where ID=" + req.params.id).then(function (response) {
+            }).catch(function (err) { })
+            res.json(response);
+        })
+    });
+});
 
-router.get('/reg/FavoritesByUsername/:num', function(req,res,next) {
+router.get('/reg/FavoritesByUsername/:num', function (req, res, next) {
     let un = req.decoded.payload.userName;
-    DButilsAzure.execQuery("select POIid from FavoritePoi where Username='" + un + "' order by Date desc").then(function(response){
-        let retArr =[];
+    DButilsAzure.execQuery("select POIid from FavoritePoi where Username='" + un + "' order by Date desc").then(function (response) {
+        let retArr = [];
         if (req.params.num === '2') {
-            for (let i=0; (i<2 && i<response.length); i++) {
-                getPOIbyID(response[i].POIid).then(function(resPOI) {
-                    retArr[i]=resPOI;
-                    if(i===1)
+            for (let i = 0; (i < 2 && i < response.length); i++) {
+                getPOIbyID(response[i].POIid).then(function (resPOI) {
+                    retArr[i] = resPOI;
+                    if (i === 1)
                         res.json(retArr);
-            })                
-            }            
+                })
+            }
         }
         else {
-            for (let i=0; (i<response.length); i++) {
-                getPOIbyID(response[i].POIid).then(function(resPOI) {
-                    retArr[i]=resPOI;
-                    if(i===response.length-1)
+            for (let i = 0; (i < response.length); i++) {
+                getPOIbyID(response[i].POIid).then(function (resPOI) {
+                    retArr[i] = resPOI;
+                    if (i === response.length - 1)
                         res.json(retArr);
-            })                
+                })
             }
         }
     });
 });
 
 //storeFavorites
-router.post('/reg/storeFav',function(req,res,next){
-    DButilsAzure.execQuery("Delete from FavoritePoi where Username='" + req.decoded.payload.userName + "'").then(function(response){
-    let favorites=req.body.favorites;
-    let today=new Date().toISOString();
-    for(var i=0;i<favorites.length;i++)
-    {
-        DButilsAzure.execQuery("insert into FavoritePoi (Username, POIid, Date) values ('"+req.decoded.payload.userName+"',"+favorites[i]+",'"+today+"')").then(function(response){
-            console.log("Favorite Added")
-        }).catch(function(err){
-            res.send(err);
-        })
-    }
-    res.send("Favorite list Updated");
-}).catch(function(err){
-    res.send(err);
-})
+router.post('/reg/storeFav', function (req, res, next) {
+    DButilsAzure.execQuery("Delete from FavoritePoi where Username='" + req.decoded.payload.userName + "'").then(function (response) {
+        let favorites = req.body.favorites;
+        let today = new Date().toISOString();
+        for (var i = 0; i < favorites.length; i++) {
+            DButilsAzure.execQuery("insert into FavoritePoi (Username, POIid, Date) values ('" + req.decoded.payload.userName + "'," + favorites[i] + ",'" + today + "')").then(function (response) {
+                console.log("Favorite Added")
+            }).catch(function (err) {
+                res.send(err);
+            })
+        }
+        res.send("Favorite list Updated");
+    }).catch(function (err) {
+        res.send(err);
+    })
 })
 
 //addRank
-router.post('/reg/addRank/', function(req,res,next) {
-    var id=req.body.id
-	var rank = req.body.rank
-	var body=req.body.body
-	var today=new Date()
-	var sum=0;
-    DButilsAzure.execQuery("insert into ReviewsPoi (POIid,Rank,body,Date) values "+id+","+rank+",'"+body+"',"+today).then(function(response){
-    console.log("Review Added")
+router.post('/reg/addRank/', function (req, res, next) {
+    var id = req.body.id
+    var rank = req.body.rank
+    var body = req.body.body
+    var today = new Date()
+    var sum = 0;
+    DButilsAzure.execQuery("insert into ReviewsPoi (POIid,Rank,body,Date) values " + id + "," + rank + ",'" + body + "'," + today).then(function (response) {
+        console.log("Review Added")
     })
-	DButilsAzure.execQuery("select Rank from ReviewsPoi where POIid="+id).then(function(response){
-		for(var i=0;i<response.length;i++)
-		{
-			sum+=response[i].Rank;
-		}
-		sum=(sum/response.length*5)*100;
-		
-		DButilsAzure.execQuery("Update POI set Rank="+sum+" where POIid="+id).then(function(response)
-		{
-			console.log("Review Calculated")
-			res.send("Review Added")
-		})
-    }).catch(function(err){
+    DButilsAzure.execQuery("select Rank from ReviewsPoi where POIid=" + id).then(function (response) {
+        for (var i = 0; i < response.length; i++) {
+            sum += response[i].Rank;
+        }
+        sum = (sum / response.length * 5) * 100;
+
+        DButilsAzure.execQuery("Update POI set Rank=" + sum + " where POIid=" + id).then(function (response) {
+            console.log("Review Calculated")
+            res.send("Review Added")
+        })
+    }).catch(function (err) {
         res.send(err);
     })
 });
-
