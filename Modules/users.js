@@ -7,15 +7,12 @@ var jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
 // use body parser so we can get info from POST and/or URL parameters
 router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
-
 // use morgan to log requests to the console
 router.use(morgan('dev'));
 
 var  superSecret = "dorRavid12"; // secret variable
 
-
 module.exports = router;
-
 
 //retrievePassword
 router.post('/retrievePassword', function(req,res) {
@@ -125,6 +122,3 @@ function sendToken(user, res) {
         res.send(err);
     });  
 }
-
-
-
