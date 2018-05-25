@@ -68,13 +68,6 @@ router.post('/', function(req,res) {
 });
 
 //LOGIN
-
-
-
-
-
-
-
 router.post('/authenticate', function (req, res) {
 
     if (!req.body.userName || !req.body.password)

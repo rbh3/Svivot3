@@ -47,6 +47,11 @@ router.use('/reg', function (req, res, next) {
 function getPOIbyID(id) {
     return new Promise(function (resolve, reject) {
         DButilsAzure.execQuery("select * from POI where ID='" + id + "'").then(function (responsePOI) {
+            if(responsePOI.length===0)
+            {
+                resolve("NO RESULTS!!!")
+                return;
+            }
             let poi = responsePOI[0];
             return DButilsAzure.execQuery("select Rank, body, Date from ReviewsPoi where POIid=" + id + " order by Date desc").then(function (responseREV) {
                 let rev = responseREV;
@@ -58,6 +63,7 @@ function getPOIbyID(id) {
                     "Name": poi.Name,
                     "Description": poi.Description,
                     "Rank": poi.Rank,
+                    "CategoryID": poi.CatID,
                     "UsersWatching": poi.UserWaching,
                     "Picture": poi.Picture,
                     "Reviews": lastTwo
@@ -68,12 +74,61 @@ function getPOIbyID(id) {
     });
 }
 
-router.get('/getPOIbyID/:id', function (req, res) {
+router.get('/reg/getPOIbyID/:id', function (req, res) {
     getPOIbyID(req.params.id).then(function (response) {
+        if(response==="NO RESULTS!!!")
+        {
+            res.json(response);
+            return;
+        }
         DButilsAzure.execQuery("update POI set UserWaching=" + (response.UsersWatching + 1) + " where ID=" + req.params.id).then(function (response) {
         }).catch(function (err) { })
         res.json(response);
     })
+});
+
+router.get('/reg/getPOIbyName/:name', function (req, res) {
+    DButilsAzure.execQuery("select ID from POI where Name LIKE '%"+req.params.name+"%'").then(function (response) {
+        if(response.length===0)
+        {
+            res.json("NO RESULTS!!!");
+            return;
+        }
+        else
+        {
+            let retArr = [];
+            let promiseArr=[];
+            for (let i = 0; i <response.length ; i++) {
+                promiseArr[i]=new Promise(function(resolve,reject){
+                resolve(getPOIbyID(response[i].ID))
+            })}
+            Promise.all(promiseArr).then(function(values){
+                res.send(values);
+            })
+        }
+    }).catch(function (err) { console.log(err) })
+});
+
+router.get('/reg/getAllPOI/', function (req, res) {
+    DButilsAzure.execQuery("select ID from POI").then(function (response) {
+        if(response.length===0)
+        {
+            res.json("NO RESULTS!!!");
+            return;
+        }
+        else
+        {
+            let retArr = [];
+            let promiseArr=[];
+            for (let i = 0; i <response.length ; i++) {
+                promiseArr[i]=new Promise(function(resolve,reject){
+                resolve(getPOIbyID(response[i].ID))
+            })}
+            Promise.all(promiseArr).then(function(values){
+                res.send(values);
+            })
+        }
+    }).catch(function (err) { console.log(err) })
 });
 
 router.get('/Random3', function (req, res) {
@@ -135,6 +190,11 @@ router.get('/Random3', function (req, res) {
 router.get('/reg/FavoritesByUsername/:num', function (req, res, next) {
     let un = req.decoded.payload.userName;
     DButilsAzure.execQuery("select POIid from FavoritePoi where Username='" + un + "' order by Date desc").then(function (response) {
+        if(response.length==0)
+        {
+            res.send("No Favorite");
+            return
+        }
         let retArr = [];
         if (req.params.num === '2') {
             let promiseArr=[];
@@ -164,6 +224,47 @@ router.get('/reg/FavoritesByUsername/:num', function (req, res, next) {
             })
         }
     });
+});
+
+router.get('/reg/get2byCat/', function (req, res, next) {
+    let un = req.decoded.payload.userName;
+    let categories=req.decoded.payload.categories;
+    let randCat1 = Math.floor(Math.random() * (categories.length));
+    let randCat2 = Math.floor(Math.random() * (categories.length));
+    while(randCat1===randCat2)
+         randCat2 = Math.floor(Math.random() * (categories.length));
+    let retArr = [];
+    let promiseArr=[];
+    DButilsAzure.execQuery("select ID from POI where CatID='" + categories[randCat1]+"' And Rank>=60").then(function (response) {
+            promiseArr[0]=new Promise(function(resolve,reject){
+                if(response.length===0)
+                {
+                    resolve("No Result in this Category");
+                }
+                else
+                {
+                    let tmpID = Math.floor(Math.random() * (response.length));
+                    resolve(getPOIbyID(response[tmpID].ID))
+                }
+            })
+         DButilsAzure.execQuery("select ID from POI where CatID='" + categories[randCat2]+"' And Rank>=60").then(function (response) {
+        promiseArr[1]=new Promise(function(resolve,reject){
+            if(response.length===0)
+            {
+                resolve("No Result in this Category");
+            }
+            else
+            {
+                let tmpID = Math.floor(Math.random() * (response.length));
+                resolve(getPOIbyID(response[tmpID].ID))
+            }
+        })
+        Promise.all(promiseArr).then(function(values){
+            res.send(values);
+        })
+    })
+    })
+     
 });
 
 //storeFavorites
