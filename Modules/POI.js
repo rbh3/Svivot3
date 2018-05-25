@@ -292,7 +292,7 @@ router.post('/reg/addRank/', function (req, res, next) {
     var body = req.body.body
     var today = new Date().toISOString();
     var sum = 0;
-    DButilsAzure.execQuery("insert into ReviewsPoi (POIid,Rank,body,Date) values (" + id + "," + rank + ",'" + body + "','" + today+"')").then(function (response) {
+    DButilsAzure.execQuery("insert into ReviewsPoi (POIid,Rank,body,Date,Username) values (" + id + "," + rank + ",'" + body + "','" + today+"','"+req.decoded.payload.userName+")").then(function (response) {
         console.log("Review Added")
         DButilsAzure.execQuery("select Rank from ReviewsPoi where POIid=" + id).then(function (response) {
         for (var i = 0; i < response.length; i++) {
