@@ -290,22 +290,26 @@ router.post('/reg/addRank/', function (req, res, next) {
     var id = req.body.id
     var rank = req.body.rank
     var body = req.body.body
-    var today = new Date()
+    var today = new Date().toISOString();
     var sum = 0;
-    DButilsAzure.execQuery("insert into ReviewsPoi (POIid,Rank,body,Date) values " + id + "," + rank + ",'" + body + "'," + today).then(function (response) {
+    DButilsAzure.execQuery("insert into ReviewsPoi (POIid,Rank,body,Date) values (" + id + "," + rank + ",'" + body + "','" + today+"')").then(function (response) {
         console.log("Review Added")
-    })
-    DButilsAzure.execQuery("select Rank from ReviewsPoi where POIid=" + id).then(function (response) {
+        DButilsAzure.execQuery("select Rank from ReviewsPoi where POIid=" + id).then(function (response) {
         for (var i = 0; i < response.length; i++) {
             sum += response[i].Rank;
         }
-        sum = (sum / response.length * 5) * 100;
+        sum = (sum / (response.length * 5)) * 100;
 
-        DButilsAzure.execQuery("Update POI set Rank=" + sum + " where POIid=" + id).then(function (response) {
+        DButilsAzure.execQuery("Update POI set Rank=" + sum + " where ID=" + id).then(function (response) {
             console.log("Review Calculated")
             res.send("Review Added")
         })
     }).catch(function (err) {
         res.send(err);
     })
+    }).catch(function(err)
+    {
+        res.send("The same review from this user exists");
+    })
+   
 })
