@@ -132,7 +132,7 @@ router.get('/reg/getAllPOI/', function (req, res) {
 });
 
 router.get('/Random3', function (req, res) {
-    DButilsAzure.execQuery("select ID from POI").then(function (responseID) {
+    DButilsAzure.execQuery("select ID from POI where Rank>=60").then(function (responseID) {
         let retArr = [];
         let usedrans=[];
         let count=0;
@@ -235,7 +235,7 @@ router.get('/reg/get2byCat/', function (req, res, next) {
          randCat2 = Math.floor(Math.random() * (categories.length));
     let retArr = [];
     let promiseArr=[];
-    DButilsAzure.execQuery("select ID from POI where CatID='" + categories[randCat1]+"' And Rank>=60").then(function (response) {
+    DButilsAzure.execQuery("select ID from POI where CatID='" + categories[randCat1]+"' order by Rank desc").then(function (response) {
             promiseArr[0]=new Promise(function(resolve,reject){
                 if(response.length===0)
                 {
@@ -247,7 +247,7 @@ router.get('/reg/get2byCat/', function (req, res, next) {
                     resolve(getPOIbyID(response[tmpID].ID))
                 }
             })
-         DButilsAzure.execQuery("select ID from POI where CatID='" + categories[randCat2]+"' And Rank>=60").then(function (response) {
+         DButilsAzure.execQuery("select ID from POI where CatID='" + categories[randCat2]+"' order by Rank desc").then(function (response) {
         promiseArr[1]=new Promise(function(resolve,reject){
             if(response.length===0)
             {
