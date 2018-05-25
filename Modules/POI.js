@@ -291,7 +291,7 @@ router.post('/reg/addRank/', function (req, res, next) {
     var rank = req.body.rank
     var body = req.body.body
     var today = new Date().toISOString();
-    var sum = 0;
+    var sum = 0;//check
     DButilsAzure.execQuery("insert into ReviewsPoi (POIid,Rank,body,Date,Username) values (" + id + "," + rank + ",'" + body + "','" + today+"','"+req.decoded.payload.userName+"')").then(function (response) {
         console.log("Review Added")
         DButilsAzure.execQuery("select Rank from ReviewsPoi where POIid=" + id).then(function (response) {
