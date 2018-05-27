@@ -74,7 +74,7 @@ function getPOIbyID(id) {
     });
 }
 
-router.get('/reg/getPOIbyID/:id', function (req, res) {
+router.get('/getPOIbyID/:id', function (req, res) {
     getPOIbyID(req.params.id).then(function (response) {
         if(response==="NO RESULTS!!!")
         {
@@ -87,7 +87,7 @@ router.get('/reg/getPOIbyID/:id', function (req, res) {
     })
 });
 
-router.get('/reg/getPOIbyName/:name', function (req, res) {
+router.get('/getPOIbyName/:name', function (req, res) {
     DButilsAzure.execQuery("select ID from POI where Name LIKE '%"+req.params.name+"%'").then(function (response) {
         if(response.length===0)
         {
@@ -109,7 +109,7 @@ router.get('/reg/getPOIbyName/:name', function (req, res) {
     }).catch(function (err) { console.log(err) })
 });
 
-router.get('/reg/getAllPOI/', function (req, res) {
+router.get('/getAllPOI/', function (req, res) {
     DButilsAzure.execQuery("select ID from POI").then(function (response) {
         if(response.length===0)
         {
@@ -283,7 +283,7 @@ router.post('/reg/storeFav', function (req, res, next) {
     })
 })
 
-//addRank
+//addRank-----maybeFIX
 router.post('/reg/addRank/', function (req, res, next) {
     var id = req.body.id
     var rank = req.body.rank
