@@ -1,4 +1,3 @@
-//dfdfd
 var ConnectionPool = require('tedious-connection-pool');
 var Request = require('tedious').Request;
 var TYPES = require('tedious').TYPES;
