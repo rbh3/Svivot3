@@ -6,7 +6,7 @@ var DButilsAzure = require('../DButils');
 module.exports = router;
 // use morgan to log requests to the console
 router.use(morgan('dev'));
-//
+
 var superSecret = "dorRavid12"; // secret variable
 
 
