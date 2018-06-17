@@ -24,6 +24,8 @@ router.post('/retrievePassword', function(req,res) {
     
     //DButilsAzure.execQuery("select Password from Users where Username='" + un + "' AND Q1='" + q1 + "' AND A1='"+a1+"' AND Q2='" + q2+"' AND A2='"+a2+"'").then(function(response){
     DButilsAzure.execQuery("select * from Users where Username='" + un + "'").then(function(response){
+        if(response.length===0)
+            res.send("user not found")
         if ((response[0].Q1 === q1) && (response[0].A1 === a1) && (response[0].Q2 === q2) && (response[0].A2 === a2))   
             res.send(response[0].Password);
         else

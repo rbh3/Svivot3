@@ -60,6 +60,7 @@ function getPOIbyID(id) {
                     lastTwo[i] = responseREV[i];
                 }
                 let returnPOI = {
+                    "ID": id,
                     "Name": poi.Name,
                     "Description": poi.Description,
                     "Rank": poi.Rank,
