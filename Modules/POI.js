@@ -44,6 +44,20 @@ router.use('/reg', function (req, res, next) {
     }
 })
 
+router.get('/reg/authToken/:token', function (req, res, next) {
+    let token=req.params.token;
+    jwt.verify(token, superSecret, function (err, decoded) {
+        if (err) {
+            return res.json({ success: false, message: 'Failed to authenticate token.' });
+        } else {
+            // if everything is good, save to request for use in other routes
+            // get the decoded payload and header
+            var decoded = jwt.decode(token, { complete: true });
+            return res.json({ message: 'Success' , payload: decoded.payload})
+        }
+    });});
+  
+
 function getPOIbyID(id) {
     return new Promise(function (resolve, reject) {
         DButilsAzure.execQuery("select * from POI where ID='" + id + "'").then(function (responsePOI) {
